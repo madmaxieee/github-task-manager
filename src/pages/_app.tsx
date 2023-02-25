@@ -5,6 +5,8 @@ import { MantineProvider } from "@mantine/core";
 
 import "@/styles/globals.css";
 import type { Session } from "next-auth";
+import { ApolloProvider } from "@apollo/client";
+import client from "@/client";
 
 interface MyAppProps extends AppProps {
   pageProps: {
@@ -32,15 +34,17 @@ const App = ({
       </Head>
 
       <SessionProvider session={session}>
-        <MantineProvider
-          withGlobalStyles
-          withNormalizeCSS
-          theme={{
-            colorScheme: "dark",
-          }}
-        >
-          <Component {...pageProps} />
-        </MantineProvider>
+        <ApolloProvider client={client}>
+          <MantineProvider
+            withGlobalStyles
+            withNormalizeCSS
+            theme={{
+              colorScheme: "dark",
+            }}
+          >
+            <Component {...pageProps} />
+          </MantineProvider>
+        </ApolloProvider>
       </SessionProvider>
     </>
   );
