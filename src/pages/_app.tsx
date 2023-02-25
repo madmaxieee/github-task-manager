@@ -1,27 +1,47 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
+import { SessionProvider } from "next-auth/react";
 import { MantineProvider } from "@mantine/core";
 
-const App = ({ Component, pageProps }: AppProps) => {
+import "@/styles/globals.css";
+import type { Session } from "next-auth";
+
+interface MyAppProps extends AppProps {
+  pageProps: {
+    session: Session;
+  };
+}
+
+const App = ({
+  Component,
+  pageProps: { session, ...pageProps },
+}: MyAppProps) => {
   return (
     <>
       <Head>
-        <title>Page title</title>
+        <title>task manager</title>
+        <meta
+          name="description"
+          content="this is a task manager based on Github issues"
+        />
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <MantineProvider
-        withGlobalStyles
-        withNormalizeCSS
-        theme={{
-          colorScheme: "dark",
-        }}
-      >
-        <Component {...pageProps} />
-      </MantineProvider>
+      <SessionProvider session={session}>
+        <MantineProvider
+          withGlobalStyles
+          withNormalizeCSS
+          theme={{
+            colorScheme: "dark",
+          }}
+        >
+          <Component {...pageProps} />
+        </MantineProvider>
+      </SessionProvider>
     </>
   );
 };
