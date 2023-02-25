@@ -1,18 +1,29 @@
-import { type AppProps } from "next/app";
-import { type Session } from "next-auth";
-import { SessionProvider } from "next-auth/react";
+import type { AppProps } from "next/app";
+import Head from "next/head";
+import { MantineProvider } from "@mantine/core";
 
-import "../styles/globals.css";
-
-const MyApp = ({
-  Component,
-  pageProps: { session, ...pageProps },
-}: AppProps<{ session: Session | null }>) => {
+const App = ({ Component, pageProps }: AppProps) => {
   return (
-    <SessionProvider session={session}>
-      <Component {...pageProps} />
-    </SessionProvider>
+    <>
+      <Head>
+        <title>Page title</title>
+        <meta
+          name="viewport"
+          content="minimum-scale=1, initial-scale=1, width=device-width"
+        />
+      </Head>
+
+      <MantineProvider
+        withGlobalStyles
+        withNormalizeCSS
+        theme={{
+          colorScheme: "dark",
+        }}
+      >
+        <Component {...pageProps} />
+      </MantineProvider>
+    </>
   );
 };
 
-export default MyApp;
+export default App;
