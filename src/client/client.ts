@@ -9,7 +9,6 @@ const httpLink = createHttpLink({
 const authLink = setContext(async (_, { headers }) => {
   const session = await getSession();
   const token = session?.accessToken ?? "";
-  console.log("authLink", { token });
   return {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     headers: {
