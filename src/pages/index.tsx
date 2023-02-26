@@ -1,40 +1,27 @@
 import { type NextPage } from "next";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-import { useSession, signIn, signOut } from "next-auth/react";
+import { Container } from "@mantine/core";
 
 const Home: NextPage = () => {
-  const { data: session, status } = useSession();
+  const router = useRouter();
+  const { data: session } = useSession({
+    required: true,
+    onUnauthenticated: () => router.push("/signin"),
+  });
 
-  if (session === null) {
-    return (
-      <main className="">
-        <h1>home</h1>
-        <button
-          onClick={() => {
-            signIn("github", { redirect: false })
-              .then((res) => console.log(res))
-              .catch((err) => console.log(err));
-          }}
-        >
-          sign in
-        </button>
-        <h1>{status}</h1>
-      </main>
-    );
-  }
   return (
-    <main className="">
+    <Container className="pt-12">
       <h1>home</h1>
       <button
         onClick={() => {
-          signOut()
-            .then((res) => console.log(res))
-            .catch((err) => console.log(err));
+          signOut().catch((err) => console.log(err));
         }}
       >
         sign out
       </button>
-    </main>
+    </Container>
   );
 };
 
