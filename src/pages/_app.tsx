@@ -2,6 +2,7 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import { SessionProvider } from "next-auth/react";
 import { MantineProvider } from "@mantine/core";
+import { NotificationsProvider } from "@mantine/notifications";
 
 import "@/styles/globals.css";
 import type { Session } from "next-auth";
@@ -41,7 +42,9 @@ const App = ({
               colorScheme: "dark",
             }}
           >
-            <Component {...pageProps} />
+            <NotificationsProvider>
+              <Component {...pageProps} />
+            </NotificationsProvider>
           </MantineProvider>
         </ApolloProvider>
       </SessionProvider>

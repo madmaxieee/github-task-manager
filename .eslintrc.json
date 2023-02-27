@@ -36,6 +36,15 @@
         "namedComponents": "arrow-function",
         "unnamedComponents": "arrow-function"
       }
+    ],
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "warn",
+          "error"
+        ]
+      }
     ]
   }
 }

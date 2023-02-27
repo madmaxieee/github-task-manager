@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Container, AppShell, Center, Loader, Button } from "@mantine/core";
 import { IconLogout } from "@tabler/icons-react";
 import Header from "@/components/Header";
+import RepoList from "@/components/RepoList";
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -29,7 +30,7 @@ const Home: NextPage = () => {
         <Header>
           <Button
             onClick={() => {
-              signOut().catch((err) => console.log("error signing out: ", err));
+              signOut().catch(console.error);
             }}
             variant="outline"
             color="red"
@@ -41,7 +42,9 @@ const Home: NextPage = () => {
         </Header>
       }
     >
-      <Container className="pt-12"></Container>
+      <Container className="pt-4">
+        <RepoList />
+      </Container>
     </AppShell>
   );
 };

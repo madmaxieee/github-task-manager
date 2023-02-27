@@ -17,6 +17,7 @@
     "@mantine/next": "^5.10.4",
     "@mantine/notifications": "^5.10.5",
     "@tabler/icons-react": "^2.5.0",
+    "@tanstack/react-table": "^8.7.9",
     "graphql": "^16.6.0",
     "next": "13.1.6",
     "next-auth": "^4.19.0",

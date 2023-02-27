@@ -71,7 +71,7 @@ const SignIn: NextPage = () => {
           <Center>
             <Button
               onClick={() => {
-                signIn("github").catch((err) => console.log(err));
+                signIn("github").catch(console.error);
               }}
               variant="default"
               size="lg"
