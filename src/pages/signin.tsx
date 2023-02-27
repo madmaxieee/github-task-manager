@@ -1,11 +1,12 @@
+import { useEffect } from "react";
 import { type NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+
 import {
   AppShell,
   Alert,
-  Header,
   Button,
   Container,
   Space,
@@ -16,7 +17,7 @@ import {
   Loader,
 } from "@mantine/core";
 import { IconBrandGithub, IconAlertCircle } from "@tabler/icons-react";
-import { useEffect } from "react";
+import Header from "@/components/Header";
 
 const SignIn: NextPage = () => {
   // if signed in, redirect to home
@@ -29,11 +30,10 @@ const SignIn: NextPage = () => {
     }
   });
 
-  if (status === "loading" || status === "authenticated") {
+  if (status !== "unauthenticated") {
     return (
-      <AppShell header={<Header height={60}>header</Header>}>
-        <Title align="center">Redirecting...</Title>
-        <Center className="pt-12">
+      <AppShell header={<Header></Header>}>
+        <Center className="h-full">
           <Loader />
         </Center>
       </AppShell>
@@ -42,8 +42,8 @@ const SignIn: NextPage = () => {
 
   // you need to sign in with github to use this app
   return (
-    <AppShell header={<Header height={60}>header</Header>}>
-      <Container className="pt-12">
+    <AppShell header={<Header></Header>}>
+      <Container className="pt-4">
         <Alert
           color="blue"
           title="You need to sign in with Github to use this app."
@@ -54,7 +54,7 @@ const SignIn: NextPage = () => {
             with Github by clicking the button below.
           </Text>
         </Alert>
-        <Stack className="pt-16">
+        <Stack className="pt-12">
           <Center>
             <Image
               src="/assets/images/avatar.png"
