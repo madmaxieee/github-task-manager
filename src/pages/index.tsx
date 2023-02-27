@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { type NextPage } from "next";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import store from "@/store";
 
 import { Container, AppShell, Center, Loader, Button } from "@mantine/core";
 import { IconLogout } from "@tabler/icons-react";
@@ -9,10 +11,16 @@ import RepoList from "@/components/RepoList";
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const { status } = useSession({
+  const { status, data: session } = useSession({
     required: true,
     onUnauthenticated: () => router.push("/signin"),
   });
+
+  useEffect(() => {
+    if (session) {
+      store.getState().setSession(session);
+    }
+  }, [session]);
 
   if (status !== "authenticated") {
     return (
@@ -42,7 +50,7 @@ const Home: NextPage = () => {
         </Header>
       }
     >
-      <Container className="pt-4">
+      <Container className="py-4">
         <RepoList />
       </Container>
     </AppShell>

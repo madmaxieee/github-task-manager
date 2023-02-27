@@ -32,6 +32,7 @@ specifiers:
   tailwindcss: ^3.2.0
   typescript: ^4.9.5
   zod: ^3.20.2
+  zustand: ^4.3.4
 
 dependencies:
   '@apollo/client': 3.7.9_gdcq4dv6opitr3wbfwyjmanyra
@@ -49,6 +50,7 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   zod: 3.20.6
+  zustand: 4.3.4_react@18.2.0
 
 devDependencies:
   '@types/node': 18.13.0
@@ -3627,6 +3629,14 @@ packages:
       use-isomorphic-layout-effect: 1.1.2_pmekkgnqduwlme35zpnqhenc34
     dev: false
 
+  /use-sync-external-store/1.2.0_react@18.2.0:
+    resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+    dev: false
+
   /util-deprecate/1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -3719,4 +3729,20 @@ packages:
 
   /zod/3.20.6:
     resolution: {integrity: sha512-oyu0m54SGCtzh6EClBVqDDlAYRz4jrVtKwQ7ZnsEmMI9HnzuZFj8QFwAY1M5uniIYACdGvv0PBWPF2kO0aNofA==}
+    dev: false
+
+  /zustand/4.3.4_react@18.2.0:
+    resolution: {integrity: sha512-QSV8MF80I4yM9UCcBhIBr5OcQkiTbZdxDofg5R5vyX49QsEia7sK1iwOhFyH/0hyNVg+h+OzARM76G8MgMno0g==}
+    engines: {node: '>=12.7.0'}
+    peerDependencies:
+      immer: '>=9.0'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      immer:
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      react: 18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
