@@ -12,7 +12,7 @@ export const RepoListItem = ({ repo }: RepoListItemProps) => {
   return (
     <Paper className="p-4" shadow="lg" withBorder radius="md">
       <div className="flex justify-between">
-        <Link href="/">
+        <Link href={`/issues/${repo.owner}/${repo.name}`}>
           <Title className="hover:underline" order={3} color="blue.5">
             {repo.owner} / {repo.name}
           </Title>

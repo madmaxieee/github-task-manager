@@ -76,6 +76,7 @@ export const FIRST_REPO_QUERY = gql`
         }
       }
       id
+      totalCount
     }
   }
 `;

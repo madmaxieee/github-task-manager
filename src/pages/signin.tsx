@@ -14,10 +14,10 @@ import {
   Center,
   Stack,
   Title,
-  Loader,
 } from "@mantine/core";
 import { IconBrandGithub, IconAlertCircle } from "@tabler/icons-react";
 import Header from "@/components/Header";
+import Redirecting from "@/components/Redirecting";
 
 const SignIn: NextPage = () => {
   // if signed in, redirect to home
@@ -31,19 +31,13 @@ const SignIn: NextPage = () => {
   });
 
   if (status !== "unauthenticated") {
-    return (
-      <AppShell header={<Header></Header>}>
-        <Center className="h-full">
-          <Loader />
-        </Center>
-      </AppShell>
-    );
+    return <Redirecting />;
   }
 
   // you need to sign in with github to use this app
   return (
     <AppShell header={<Header></Header>}>
-      <Container className="pt-4">
+      <Container className="py-4">
         <Alert
           color="blue"
           title="You need to sign in with Github to use this app."

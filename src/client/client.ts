@@ -12,6 +12,7 @@ const authLink = setContext(async (_, { headers }) => {
   if (!session) {
     store.getState().setSession(await getSession());
   }
+
   const token = store.getState().session?.accessToken;
   return {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

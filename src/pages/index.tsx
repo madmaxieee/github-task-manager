@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import { type NextPage } from "next";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import store from "@/store";
 
-import { Container, AppShell, Center, Loader, Button } from "@mantine/core";
-import { IconLogout } from "@tabler/icons-react";
+import { Container, AppShell, Title, Space, Divider } from "@mantine/core";
 import Header from "@/components/Header";
 import RepoList from "@/components/RepoList";
+import Redirecting from "@/components/Redirecting";
+import SignOutButton from "@/components/SignOutButton";
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -23,34 +24,21 @@ const Home: NextPage = () => {
   }, [session]);
 
   if (status !== "authenticated") {
-    return (
-      <AppShell header={<Header></Header>}>
-        <Center className="h-full">
-          <Loader />
-        </Center>
-      </AppShell>
-    );
+    return <Redirecting />;
   }
 
   return (
     <AppShell
       header={
         <Header>
-          <Button
-            onClick={() => {
-              signOut().catch(console.error);
-            }}
-            variant="outline"
-            color="red"
-            className="m-4"
-            leftIcon={<IconLogout />}
-          >
-            Sign out
-          </Button>
+          <SignOutButton />
         </Header>
       }
     >
       <Container className="py-4">
+        <Title>Your Repos</Title>
+        <Divider className="my-2" />
+        <Space h="xl" />
         <RepoList />
       </Container>
     </AppShell>
