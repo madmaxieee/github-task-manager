@@ -8,6 +8,7 @@ import {
 } from "@/client/queries";
 import client from "@/client";
 import { showNotification } from "@mantine/notifications";
+import { type RequiredLabels } from "@/utils/labels";
 
 export interface Issue {
   id: string;
@@ -22,6 +23,7 @@ export interface Issue {
 export default function useIssues(
   owner: string | undefined,
   repo: string | undefined,
+  labels: RequiredLabels | null,
   pageSize = 10
 ) {
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -37,8 +39,9 @@ export default function useIssues(
     if (totalIssues && issues.length >= totalIssues) {
       return;
     }
+
+    setLoading(true);
     try {
-      setLoading(true);
       const { data } = await client.query<
         IssueQueryResponseData,
         MoreIssueQueryVariables
@@ -52,28 +55,16 @@ export default function useIssues(
           labelCount: 3,
         },
       });
-      const newIssues = data.repository.issues.edges
-        .map((edge) => ({
-          id: edge.node.id,
-          number: edge.node.number,
-          title: edge.node.title,
-          bodyHTML: edge.node.bodyHTML,
-          closed: edge.node.closed,
-          isPinned: edge.node.isPinned,
-          url: edge.node.url,
-        }))
-        .filter((issue) => {
-          if (fetchedIssueIDs.current.has(issue.id)) {
-            return false;
-          }
-          fetchedIssueIDs.current.add(issue.id);
-          return true;
-        });
+
+      const newIssues = data2issues(data).filter((issue) => {
+        if (fetchedIssueIDs.current.has(issue.id)) {
+          return false;
+        }
+        fetchedIssueIDs.current.add(issue.id);
+        return true;
+      });
       setIssues((currentIssues) => [...currentIssues, ...newIssues]);
-      const newCursor = data.repository.issues.edges.slice(-1)[0]?.cursor;
-      if (newCursor) {
-        setCursor(newCursor);
-      }
+      setCursor(getLastCursor(data));
     } catch (error) {
       console.error(error);
       showNotification({
@@ -106,21 +97,8 @@ export default function useIssues(
         },
       });
 
-      const newIssues = data.repository.issues.edges.map((edge) => ({
-        id: edge.node.id,
-        number: edge.node.number,
-        title: edge.node.title,
-        bodyHTML: edge.node.bodyHTML,
-        closed: edge.node.closed,
-        isPinned: edge.node.isPinned,
-        url: edge.node.url,
-      }));
-
-      setIssues(newIssues);
-      const newCursor = data.repository.issues.edges.slice(-1)[0]?.cursor;
-      if (newCursor) {
-        setCursor(newCursor);
-      }
+      setIssues(data2issues(data));
+      setCursor(getLastCursor(data));
       setTotalIssues(data.repository.issues.totalCount);
     })()
       .catch((error) => {
@@ -141,4 +119,20 @@ export default function useIssues(
     loading,
     fetchMore,
   };
+}
+
+function data2issues(data: IssueQueryResponseData): Issue[] {
+  return data.repository.issues.edges.map((edge) => ({
+    id: edge.node.id,
+    number: edge.node.number,
+    title: edge.node.title,
+    bodyHTML: edge.node.bodyHTML,
+    closed: edge.node.closed,
+    isPinned: edge.node.isPinned,
+    url: edge.node.url,
+  }));
+}
+
+function getLastCursor(data: IssueQueryResponseData): string | null {
+  return data.repository.issues.edges.slice(-1)[0]?.cursor ?? null;
 }

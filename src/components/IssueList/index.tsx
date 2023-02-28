@@ -11,8 +11,8 @@ export interface IssueListProps {
   labels: RequiredLabels | null;
 }
 
-export const IssueList = ({ owner, repo }: IssueListProps) => {
-  const { issues, loading, fetchMore } = useIssues(owner, repo, 10);
+export const IssueList = ({ owner, repo, labels }: IssueListProps) => {
+  const { issues, loading, fetchMore } = useIssues(owner, repo, labels, 10);
   const bottomRef: LegacyRef<HTMLDivElement> = (element) => {
     if (element) {
       const observer = new IntersectionObserver(

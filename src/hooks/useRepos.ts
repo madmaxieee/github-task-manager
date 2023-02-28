@@ -34,12 +34,15 @@ export default function useRepos(pageSize = 10) {
   const fetchedRepoIDs = useRef<Set<string>>(new Set());
 
   const fetchMore = useCallback(async () => {
-    if (!loginName || !cursor) return;
+    if (!loginName || !cursor) {
+      return;
+    }
     if (totalRepos && repos.length >= totalRepos) {
       return;
     }
+
+    setLoading(true);
     try {
-      setLoading(true);
       const { data } = await client.query<
         RepoQueryResponseData,
         MoreRepoQueryVariables
@@ -51,30 +54,16 @@ export default function useRepos(pageSize = 10) {
           after: cursor,
         },
       });
-      const newRepos = data.user.repositories.edges
-        .map((edge) => ({
-          id: edge.node.id,
-          name: edge.node.name,
-          owner: edge.node.owner.login,
-          description: edge.node.description,
-          stargazerCount: edge.node.stargazerCount,
-          hasIssuesEnabled: edge.node.hasIssuesEnabled,
-          isPrivate: edge.node.isPrivate,
-          updatedAt: edge.node.updatedAt,
-          language: edge.node.languages.edges[0]?.node,
-        }))
-        .filter((repo) => {
-          if (fetchedRepoIDs.current.has(repo.id)) {
-            return false;
-          }
-          fetchedRepoIDs.current.add(repo.id);
-          return true;
-        });
+
+      const newRepos = data2repos(data).filter((repo) => {
+        if (fetchedRepoIDs.current.has(repo.id)) {
+          return false;
+        }
+        fetchedRepoIDs.current.add(repo.id);
+        return true;
+      });
       setRepos((prevRepos) => [...prevRepos, ...newRepos]);
-      const newCursor = data.user.repositories.edges.slice(-1)[0]?.cursor;
-      if (newCursor) {
-        setCursor(newCursor);
-      }
+      setCursor(getLastCursor(data));
     } catch (error) {
       console.error(error);
       showNotification({
@@ -91,6 +80,7 @@ export default function useRepos(pageSize = 10) {
     if (!loginName) {
       return;
     }
+
     setLoading(true);
     (async () => {
       const { data } = await client.query<
@@ -104,27 +94,9 @@ export default function useRepos(pageSize = 10) {
         },
       });
 
-      const totalCount = data.user.repositories.totalCount!;
-      setTotalRepos(totalCount);
-
-      const newRepos = data.user.repositories.edges.map((edge) => ({
-        id: edge.node.id,
-        name: edge.node.name,
-        owner: edge.node.owner.login,
-        description: edge.node.description,
-        stargazerCount: edge.node.stargazerCount,
-        hasIssuesEnabled: edge.node.hasIssuesEnabled,
-        isPrivate: edge.node.isPrivate,
-        updatedAt: edge.node.updatedAt,
-        language: edge.node.languages.edges[0]?.node,
-      }));
-
-      const newCursor = data.user.repositories.edges.slice(-1)[0]?.cursor;
-      if (newCursor) {
-        setCursor(newCursor);
-      }
-
-      setRepos(newRepos);
+      setRepos(data2repos(data));
+      setCursor(getLastCursor(data));
+      setTotalRepos(data.user.repositories.totalCount!);
     })()
       .catch((err) => {
         console.error(err);
@@ -144,4 +116,22 @@ export default function useRepos(pageSize = 10) {
     loading,
     fetchMore,
   };
+}
+
+function data2repos(data: RepoQueryResponseData): Repo[] {
+  return data.user.repositories.edges.map((edge) => ({
+    id: edge.node.id,
+    name: edge.node.name,
+    owner: edge.node.owner.login,
+    description: edge.node.description,
+    stargazerCount: edge.node.stargazerCount,
+    hasIssuesEnabled: edge.node.hasIssuesEnabled,
+    isPrivate: edge.node.isPrivate,
+    updatedAt: edge.node.updatedAt,
+    language: edge.node.languages.edges[0]?.node,
+  }));
+}
+
+function getLastCursor(data: RepoQueryResponseData): string | null {
+  return data.user.repositories.edges.slice(-1)[0]?.cursor ?? null;
 }
