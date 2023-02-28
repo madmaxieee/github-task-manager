@@ -39,6 +39,7 @@ export interface RepoQueryResponseData {
           };
         };
       }[];
+      totalCount?: number;
     };
     id: string;
   };
@@ -74,9 +75,9 @@ export const FIRST_REPO_QUERY = gql`
             }
           }
         }
+        totalCount
       }
       id
-      totalCount
     }
   }
 `;

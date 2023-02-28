@@ -27,18 +27,18 @@ export default function useRepos(pageSize: number) {
   const [repos, setRepos] = useState<Repo[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [ended, setEnded] = useState(false);
+  const [totalRepos, setTotalRepos] = useState<number | null>(null);
   const { loginName } = useLoginName();
   const fetchedRepoIDs = useRef<Set<string>>(new Set());
 
   const fetchMore = useCallback(async () => {
     if (!loginName || !cursor) return;
+    if (totalRepos && repos.length >= totalRepos) {
+      return;
+    }
     try {
       // don't fetch if we already fetched all repos
       setLoading(true);
-      if (ended) {
-        return;
-      }
       const { data } = await client.query<RepoQueryResponseData>({
         query: MORE_REPO_QUERY,
         variables: {
@@ -63,9 +63,7 @@ export default function useRepos(pageSize: number) {
           if (fetchedRepoIDs.current.has(repo.id)) {
             return false;
           }
-          if (!repo.hasIssuesEnabled) {
-            return false;
-          }
+
           fetchedRepoIDs.current.add(repo.id);
           return true;
         });
@@ -73,8 +71,6 @@ export default function useRepos(pageSize: number) {
       const newCursor = data.user.repositories.edges.slice(-1)[0]?.cursor;
       if (newCursor) {
         setCursor(newCursor);
-      } else {
-        setEnded(true);
       }
     } catch (error) {
       console.error(error);
@@ -86,12 +82,13 @@ export default function useRepos(pageSize: number) {
     } finally {
       setLoading(false);
     }
-  }, [ended, loginName, pageSize, cursor]);
+  }, [loginName, cursor, totalRepos, repos.length, pageSize]);
 
   useEffect(() => {
     if (!loginName) {
       return;
     }
+    setLoading(true);
     (async () => {
       const { data } = await client.query<RepoQueryResponseData>({
         query: FIRST_REPO_QUERY,
@@ -100,6 +97,9 @@ export default function useRepos(pageSize: number) {
           first: pageSize,
         },
       });
+
+      const totalCount = data.user.repositories.totalCount!;
+      setTotalRepos(totalCount);
 
       const newRepos = data.user.repositories.edges.map((edge) => ({
         id: edge.node.id,
@@ -113,23 +113,29 @@ export default function useRepos(pageSize: number) {
         language: edge.node.languages.edges[0]?.node,
       }));
 
-      if (newRepos.length < pageSize) {
-        setEnded(true);
-      }
-
       const newCursor = data.user.repositories.edges.slice(-1)[0]?.cursor;
       if (newCursor) {
         setCursor(newCursor);
       }
 
       setRepos(newRepos);
-    })().catch(console.error);
+    })()
+      .catch((err) => {
+        console.error(err);
+        showNotification({
+          title: "Error",
+          message: "Failed to fetch repositories",
+          color: "red",
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [loginName, pageSize]);
 
   return {
     repos,
     loading,
     fetchMore,
-    ended,
   };
 }

@@ -28,7 +28,13 @@
     "plugin:prettier/recommended"
   ],
   "rules": {
-    "@typescript-eslint/consistent-type-imports": "warn",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "inline-type-imports"
+      }
+    ],
     "react/react-in-jsx-scope": "off",
     "react/function-component-definition": [
       "warn",
@@ -45,6 +51,7 @@
           "error"
         ]
       }
-    ]
+    ],
+    "@typescript-eslint/no-non-null-assertion": "off"
   }
 }
