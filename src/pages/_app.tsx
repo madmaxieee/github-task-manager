@@ -38,6 +38,8 @@ const App = ({
         <ApolloProvider client={client}>
           <MantineProvider
             withGlobalStyles
+            withNormalizeCSS
+            withCSSVariables
             theme={{
               colorScheme: "dark",
             }}

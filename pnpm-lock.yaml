@@ -10,6 +10,7 @@ specifiers:
   '@mantine/notifications': ^5.10.5
   '@tabler/icons-react': ^2.5.0
   '@tanstack/react-table': ^8.7.9
+  '@types/dompurify': ^2.4.0
   '@types/node': ^18.11.18
   '@types/prettier': ^2.7.2
   '@types/react': ^18.0.26
@@ -17,6 +18,7 @@ specifiers:
   '@typescript-eslint/eslint-plugin': ^5.47.1
   '@typescript-eslint/parser': ^5.47.1
   autoprefixer: ^10.4.7
+  dompurify: ^3.0.0
   eslint: ^8.30.0
   eslint-config-next: 13.1.6
   eslint-config-prettier: ^8.6.0
@@ -44,6 +46,7 @@ dependencies:
   '@mantine/notifications': 5.10.5_7l7cohgiq6l4ncfy2pvlz3brzy
   '@tabler/icons-react': 2.5.0_react@18.2.0
   '@tanstack/react-table': 8.7.9_biqbaboplfbrettd7655fr4n2y
+  dompurify: 3.0.0
   graphql: 16.6.0
   next: 13.1.6_biqbaboplfbrettd7655fr4n2y
   next-auth: 4.19.2_3vryta7zmbcsw4rrqf4axjqggm
@@ -53,6 +56,7 @@ dependencies:
   zustand: 4.3.4_react@18.2.0
 
 devDependencies:
+  '@types/dompurify': 2.4.0
   '@types/node': 18.13.0
   '@types/prettier': 2.7.2
   '@types/react': 18.0.28
@@ -770,6 +774,12 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
+  /@types/dompurify/2.4.0:
+    resolution: {integrity: sha512-IDBwO5IZhrKvHFUl+clZxgf3hn2b/lU6H1KaBShPkQyGJUQ0xwebezIPSuiyGwfz1UzJWQl4M7BDxtHtCCPlTg==}
+    dependencies:
+      '@types/trusted-types': 2.0.3
+    dev: true
+
   /@types/json-schema/7.0.11:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
     dev: true
@@ -811,6 +821,10 @@ packages:
 
   /@types/semver/7.3.13:
     resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
+    dev: true
+
+  /@types/trusted-types/2.0.3:
+    resolution: {integrity: sha512-NfQ4gyz38SL8sDNrSixxU2Os1a5xcdFxipAFxYEuLUlvU2uDwS4NUpsImcf1//SlWItCVMMLiylsxbmNMToV/g==}
     dev: true
 
   /@typescript-eslint/eslint-plugin/5.52.0_6cfvjsbua5ptj65675bqcn6oza:
@@ -1455,6 +1469,10 @@ packages:
     engines: {node: '>= 4'}
     dependencies:
       domelementtype: 2.3.0
+    dev: false
+
+  /dompurify/3.0.0:
+    resolution: {integrity: sha512-0g/yr2IJn4nTbxwL785YxS7/AvvgGFJw6LLWP+BzWzB1+BYOqPUT9Hy0rXrZh5HLdHnxH72aDdzvC9SdTjsuaA==}
     dev: false
 
   /domutils/2.8.0:

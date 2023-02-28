@@ -131,7 +131,7 @@ export interface IssueQueryResponseData {
           id: string;
           isPinned: boolean;
           number: number;
-          titleHTML: string;
+          title: string;
           url: string;
         };
       }[];
@@ -151,7 +151,7 @@ export const FIRST_ISSUE_QUERY = gql`
             id
             isPinned
             number
-            titleHTML
+            title
             url
           }
         }
@@ -178,7 +178,7 @@ export const MORE_ISSUE_QUERY = gql`
             id
             isPinned
             number
-            titleHTML
+            title
             url
           }
         }

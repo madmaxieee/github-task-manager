@@ -10,7 +10,7 @@ import { showNotification } from "@mantine/notifications";
 export interface Issue {
   id: string;
   number: number;
-  titleHTML: string;
+  title: string;
   bodyHTML: string;
   closed: boolean;
   isPinned: boolean;
@@ -44,7 +44,7 @@ export default function useIssues(owner: string, repo: string, pageSize = 10) {
         .map((edge) => ({
           id: edge.node.id,
           number: edge.node.number,
-          titleHTML: edge.node.titleHTML,
+          title: edge.node.title,
           bodyHTML: edge.node.bodyHTML,
           closed: edge.node.closed,
           isPinned: edge.node.isPinned,
@@ -89,7 +89,7 @@ export default function useIssues(owner: string, repo: string, pageSize = 10) {
       const newIssues = data.repository.issues.edges.map((edge) => ({
         id: edge.node.id,
         number: edge.node.number,
-        titleHTML: edge.node.titleHTML,
+        title: edge.node.title,
         bodyHTML: edge.node.bodyHTML,
         closed: edge.node.closed,
         isPinned: edge.node.isPinned,

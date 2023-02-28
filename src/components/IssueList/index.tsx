@@ -2,7 +2,6 @@ import { type LegacyRef } from "react";
 import useIssues from "@/hooks/useIssues";
 
 import IssueListItem, { IssueListItemSkeletons } from "./IssueListItem";
-import { Button } from "@mantine/core";
 
 export interface IssueListProps {
   owner: string;
@@ -10,13 +9,13 @@ export interface IssueListProps {
 }
 
 export const IssueList = ({ owner, repo }: IssueListProps) => {
-  const { issues, loading, fetchMore } = useIssues(owner, repo, 2);
+  const { issues, loading, fetchMore } = useIssues(owner, repo, 10);
   const bottomRef: LegacyRef<HTMLDivElement> = (element) => {
     if (element) {
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry?.isIntersecting && !loading) {
-            // fetchMore().catch(console.error);
+            fetchMore().catch(console.error);
           }
         },
         { threshold: 1 }

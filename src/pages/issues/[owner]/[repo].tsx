@@ -36,8 +36,8 @@ const Issues: NextPage = () => {
       }
     >
       <Container className="py-4">
-        <Title>
-          Issues for {owner}/{repo}
+        <Title order={2}>
+          {owner}/{repo}
         </Title>
         <Divider className="my-2" />
         <Space h="xl" />
