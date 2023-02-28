@@ -1,8 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
+  GET_MORE_ISSUES,
+  GET_FIRST_ISSUE,
   type IssueQueryResponseData,
-  MORE_ISSUE_QUERY,
-  FIRST_ISSUE_QUERY,
+  type FirstIssueQueryVariables,
+  type MoreIssueQueryVariables,
 } from "@/client/queries";
 import client from "@/client";
 import { showNotification } from "@mantine/notifications";
@@ -17,7 +19,11 @@ export interface Issue {
   url: string;
 }
 
-export default function useIssues(owner: string, repo: string, pageSize = 10) {
+export default function useIssues(
+  owner: string | undefined,
+  repo: string | undefined,
+  pageSize = 10
+) {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,19 +31,25 @@ export default function useIssues(owner: string, repo: string, pageSize = 10) {
   const fetchedIssueIDs = useRef<Set<string>>(new Set());
 
   const fetchMore = useCallback(async () => {
-    if (!cursor) return;
+    if (!cursor || !owner || !repo) {
+      return;
+    }
     if (totalIssues && issues.length >= totalIssues) {
       return;
     }
     try {
       setLoading(true);
-      const { data } = await client.query<IssueQueryResponseData>({
-        query: MORE_ISSUE_QUERY,
+      const { data } = await client.query<
+        IssueQueryResponseData,
+        MoreIssueQueryVariables
+      >({
+        query: GET_MORE_ISSUES,
         variables: {
           owner,
           name: repo,
           first: pageSize,
           after: cursor,
+          labelCount: 3,
         },
       });
       const newIssues = data.repository.issues.edges
@@ -75,14 +87,22 @@ export default function useIssues(owner: string, repo: string, pageSize = 10) {
   }, [cursor, issues.length, owner, pageSize, repo, totalIssues]);
 
   useEffect(() => {
+    if (!owner || !repo) {
+      return;
+    }
+
     setLoading(true);
     (async () => {
-      const { data } = await client.query<IssueQueryResponseData>({
-        query: FIRST_ISSUE_QUERY,
+      const { data } = await client.query<
+        IssueQueryResponseData,
+        FirstIssueQueryVariables
+      >({
+        query: GET_FIRST_ISSUE,
         variables: {
           owner,
           name: repo,
           first: pageSize,
+          labelCount: 3,
         },
       });
 

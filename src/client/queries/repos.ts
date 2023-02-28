@@ -1,17 +1,4 @@
 import { gql } from "@apollo/client";
-export interface LoginNameQueryResponseData {
-  viewer: {
-    login: string;
-  };
-}
-
-export const LOGIN_NAME_QUERY = gql`
-  query LoginName {
-    viewer {
-      login
-    }
-  }
-`;
 
 export interface RepoQueryResponseData {
   user: {
@@ -45,7 +32,12 @@ export interface RepoQueryResponseData {
   };
 }
 
-export const FIRST_REPO_QUERY = gql`
+export interface FirstRepoQueryVariables {
+  loginName: string;
+  first: number;
+}
+
+export const GET_FIRST_REPO = gql`
   query Repos($loginName: String!, $first: Int!) {
     user(login: $loginName) {
       repositories(
@@ -82,7 +74,13 @@ export const FIRST_REPO_QUERY = gql`
   }
 `;
 
-export const MORE_REPO_QUERY = gql`
+export interface MoreRepoQueryVariables {
+  loginName: string;
+  first: number;
+  after: string;
+}
+
+export const GET_MORE_REPOS = gql`
   query Repos($loginName: String!, $first: Int!, $after: String!) {
     user(login: $loginName) {
       repositories(
@@ -113,76 +111,6 @@ export const MORE_REPO_QUERY = gql`
             }
           }
         }
-      }
-      id
-    }
-  }
-`;
-
-export interface IssueQueryResponseData {
-  repository: {
-    issues: {
-      totalCount: number;
-      edges: {
-        cursor: string;
-        node: {
-          bodyHTML: string;
-          closed: boolean;
-          id: string;
-          isPinned: boolean;
-          number: number;
-          title: string;
-          url: string;
-        };
-      }[];
-    };
-  };
-}
-
-export const FIRST_ISSUE_QUERY = gql`
-  query Issues($first: Int!, $name: String!, $owner: String!) {
-    repository(name: $name, owner: $owner) {
-      issues(first: $first, orderBy: { field: CREATED_AT, direction: DESC }) {
-        edges {
-          cursor
-          node {
-            bodyHTML
-            closed
-            id
-            isPinned
-            number
-            title
-            url
-          }
-        }
-        totalCount
-      }
-      id
-    }
-  }
-`;
-
-export const MORE_ISSUE_QUERY = gql`
-  query Issues($first: Int!, $name: String!, $owner: String!, $after: String!) {
-    repository(name: $name, owner: $owner) {
-      issues(
-        first: $first
-        after: $after
-        orderBy: { field: CREATED_AT, direction: DESC }
-      ) {
-        edges {
-          cursor
-          node {
-            bodyHTML
-            closed
-            id
-            isPinned
-            number
-            title
-            url
-          }
-        }
-        totalCount
       }
       id
     }

@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import client from "@/client";
 import {
-  FIRST_REPO_QUERY,
-  MORE_REPO_QUERY,
+  GET_FIRST_REPO,
+  GET_MORE_REPOS,
   type RepoQueryResponseData,
+  type FirstRepoQueryVariables,
+  type MoreRepoQueryVariables,
 } from "@/client/queries";
 import { showNotification } from "@mantine/notifications";
 import useLoginName from "./useLoginName";
@@ -38,8 +40,11 @@ export default function useRepos(pageSize = 10) {
     }
     try {
       setLoading(true);
-      const { data } = await client.query<RepoQueryResponseData>({
-        query: MORE_REPO_QUERY,
+      const { data } = await client.query<
+        RepoQueryResponseData,
+        MoreRepoQueryVariables
+      >({
+        query: GET_MORE_REPOS,
         variables: {
           loginName,
           first: pageSize,
@@ -88,8 +93,11 @@ export default function useRepos(pageSize = 10) {
     }
     setLoading(true);
     (async () => {
-      const { data } = await client.query<RepoQueryResponseData>({
-        query: FIRST_REPO_QUERY,
+      const { data } = await client.query<
+        RepoQueryResponseData,
+        FirstRepoQueryVariables
+      >({
+        query: GET_FIRST_REPO,
         variables: {
           loginName,
           first: pageSize,

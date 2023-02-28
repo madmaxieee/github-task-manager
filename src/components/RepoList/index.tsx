@@ -1,6 +1,7 @@
 import type { LegacyRef } from "react";
 import useRepos from "@/hooks/useRepos";
 
+import { Center, Title } from "@mantine/core";
 import RepoListItem, { RepoListItemSkeletons } from "./RepoListItem";
 
 export const RepoList = () => {
@@ -25,6 +26,13 @@ export const RepoList = () => {
         {repos.map((repo) => (
           <RepoListItem key={repo.id} repo={repo} />
         ))}
+        {!loading && repos.length === 0 && (
+          <Center>
+            <Title order={2} color="dimmed">
+              No repos found.
+            </Title>
+          </Center>
+        )}
         {loading && <RepoListItemSkeletons count={10} />}
       </div>
       <div ref={bottomRef} />

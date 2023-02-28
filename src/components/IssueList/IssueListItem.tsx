@@ -40,6 +40,7 @@ export const IssueListItem = ({ issue }: IssueListIemProps) => {
             {issue.title}
           </Title>
         </button>
+        <Title order={3} color="gray"></Title>
       </div>
       <Collapse in={open}>
         <div className="px-12">

@@ -1,11 +1,14 @@
 import { type LegacyRef } from "react";
 import useIssues from "@/hooks/useIssues";
 
+import { Center, Title } from "@mantine/core";
 import IssueListItem, { IssueListItemSkeletons } from "./IssueListItem";
+import { type RequiredLabels } from "@/utils/labels";
 
 export interface IssueListProps {
-  owner: string;
-  repo: string;
+  owner?: string;
+  repo?: string;
+  labels: RequiredLabels | null;
 }
 
 export const IssueList = ({ owner, repo }: IssueListProps) => {
@@ -30,6 +33,13 @@ export const IssueList = ({ owner, repo }: IssueListProps) => {
         {issues.map((issue) => (
           <IssueListItem key={issue.id} issue={issue} />
         ))}
+        {!loading && issues.length === 0 && (
+          <Center>
+            <Title order={2} color="dimmed">
+              No issues found.
+            </Title>
+          </Center>
+        )}
         {loading && <IssueListItemSkeletons count={10} />}
       </div>
       <div ref={bottomRef} />
