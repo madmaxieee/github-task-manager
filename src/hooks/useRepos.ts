@@ -23,7 +23,7 @@ export interface Repo {
   };
 }
 
-export default function useRepos(pageSize: number) {
+export default function useRepos(pageSize = 10) {
   const [repos, setRepos] = useState<Repo[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,6 @@ export default function useRepos(pageSize: number) {
       return;
     }
     try {
-      // don't fetch if we already fetched all repos
       setLoading(true);
       const { data } = await client.query<RepoQueryResponseData>({
         query: MORE_REPO_QUERY,
@@ -63,7 +62,6 @@ export default function useRepos(pageSize: number) {
           if (fetchedRepoIDs.current.has(repo.id)) {
             return false;
           }
-
           fetchedRepoIDs.current.add(repo.id);
           return true;
         });

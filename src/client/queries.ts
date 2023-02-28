@@ -119,20 +119,72 @@ export const MORE_REPO_QUERY = gql`
   }
 `;
 
-export const ISSUES_QUERY = gql`
-  query Issues($name: String!, $owner: String!) {
+export interface IssueQueryResponseData {
+  repository: {
+    issues: {
+      totalCount: number;
+      edges: {
+        cursor: string;
+        node: {
+          bodyHTML: string;
+          closed: boolean;
+          id: string;
+          isPinned: boolean;
+          number: number;
+          titleHTML: string;
+          url: string;
+        };
+      }[];
+    };
+  };
+}
+
+export const FIRST_ISSUE_QUERY = gql`
+  query Issues($first: Int!, $name: String!, $owner: String!) {
     repository(name: $name, owner: $owner) {
-      issues(first: 5) {
+      issues(first: $first, orderBy: { field: CREATED_AT, direction: DESC }) {
         edges {
-          node {
-            id
-            state
-            bodyHTML
-            titleHTML
-          }
           cursor
+          node {
+            bodyHTML
+            closed
+            id
+            isPinned
+            number
+            titleHTML
+            url
+          }
         }
+        totalCount
       }
+      id
+    }
+  }
+`;
+
+export const MORE_ISSUE_QUERY = gql`
+  query Issues($first: Int!, $name: String!, $owner: String!, $after: String!) {
+    repository(name: $name, owner: $owner) {
+      issues(
+        first: $first
+        after: $after
+        orderBy: { field: CREATED_AT, direction: DESC }
+      ) {
+        edges {
+          cursor
+          node {
+            bodyHTML
+            closed
+            id
+            isPinned
+            number
+            titleHTML
+            url
+          }
+        }
+        totalCount
+      }
+      id
     }
   }
 `;
