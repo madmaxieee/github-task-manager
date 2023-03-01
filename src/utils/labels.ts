@@ -14,28 +14,38 @@ export interface Label {
   color: string;
 }
 
-export type RequiredLabels = [
-  {
-    name: "open";
-    color: string;
-    id: string;
-  },
-  {
-    name: "in progress";
-    color: string;
-    id: string;
-  },
-  {
-    name: "done";
-    color: string;
-    id: string;
-  }
-];
+const OPEN_COLOR = "1D76DB";
+const IN_PROGRESS_COLOR = "B60205";
+const DONE_COLOR = "0E8A16";
+
+export type OpenLabel = {
+  name: "open";
+  color: typeof OPEN_COLOR;
+  id: string;
+};
+
+export type InProgressLabel = {
+  name: "in progress";
+  color: typeof IN_PROGRESS_COLOR;
+  id: string;
+};
+
+export type DoneLabel = {
+  name: "done";
+  color: typeof DONE_COLOR;
+  id: string;
+};
+
+export type RequiredLabels = {
+  open: OpenLabel;
+  inProgress: InProgressLabel;
+  done: DoneLabel;
+};
 
 const REQUIRED_LABEL_COLORS = [
-  { name: "open", color: "1D76DB" },
-  { name: "in progress", color: "B60205" },
-  { name: "done", color: "0E8A16" },
+  { name: "open", color: OPEN_COLOR },
+  { name: "in progress", color: IN_PROGRESS_COLOR },
+  { name: "done", color: DONE_COLOR },
 ];
 
 export async function initializeLabels(
@@ -61,20 +71,24 @@ export async function initializeLabels(
 
   const newLabels = await getAllLabelNames(owner, repoName);
   const openLabel = newLabels.find((label) => label.name === "open") as
-    | RequiredLabels[0]
+    | OpenLabel
     | undefined;
   const inProgressLabel = newLabels.find(
     (label) => label.name === "in progress"
-  ) as RequiredLabels[1] | undefined;
+  ) as InProgressLabel | undefined;
   const doneLabel = newLabels.find((label) => label.name === "done") as
-    | RequiredLabels[2]
+    | DoneLabel
     | undefined;
 
   if (!openLabel || !inProgressLabel || !doneLabel) {
     throw new Error("Failed to create required labels");
   }
 
-  return [openLabel, inProgressLabel, doneLabel];
+  return {
+    open: openLabel,
+    inProgress: inProgressLabel,
+    done: doneLabel,
+  };
 }
 
 export async function getAllLabelNames(

@@ -15,12 +15,10 @@ export interface IssueQueryResponseData {
           title: string;
           url: string;
           labels: {
-            edges: {
-              node: {
-                id: string;
-                name: string;
-                color: string;
-              };
+            nodes: {
+              id: string;
+              name: string;
+              color: string;
             }[];
           };
         };

@@ -16,11 +16,9 @@ export interface IssueListIemProps {
 
 export const IssueListItem = ({ issue }: IssueListIemProps) => {
   const [checked, setChecked] = useState(issue.closed);
-  const [open, setOpen] = useState(false);
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(e.currentTarget.checked);
-    if (e.currentTarget.checked) setOpen(false);
   };
 
   return (
@@ -34,15 +32,15 @@ export const IssueListItem = ({ issue }: IssueListIemProps) => {
         />
         <button
           className="text-left"
-          onClick={() => setOpen((_open) => !_open)}
+          // onClick={() => setOpen((_open) => !_open)}
         >
           <Title order={3} {...(checked ? { color: "gray" } : {})}>
             {issue.title}
           </Title>
         </button>
-        <Title order={3} color="gray"></Title>
+        <Title order={3}>{issue.label.name}</Title>
       </div>
-      <Collapse in={open}>
+      {/* <Collapse in={open}>
         <div className="px-12">
           <Space h="lg" />
           <TypographyStylesProvider>
@@ -51,7 +49,7 @@ export const IssueListItem = ({ issue }: IssueListIemProps) => {
             />
           </TypographyStylesProvider>
         </div>
-      </Collapse>
+      </Collapse> */}
     </Paper>
   );
 };

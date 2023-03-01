@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { showNotification } from "@mantine/notifications";
+
 import {
   GET_MORE_ISSUES,
   GET_FIRST_ISSUE,
@@ -6,10 +8,22 @@ import {
   type FirstIssueQueryVariables,
   type MoreIssueQueryVariables,
 } from "@/client/queries";
+import {
+  ADD_LABELS,
+  REMOVE_LABELS,
+  type AddLabelsMutationVariables,
+  type AddLabelsMutationResponseData,
+  type RemoveLabelsMutationResponseData,
+  type RemoveLabelsMutationVariables,
+} from "@/client/mutations";
 import client from "@/client";
-import { showNotification } from "@mantine/notifications";
-import { type RequiredLabels } from "@/utils/labels";
 
+import {
+  type DoneLabel,
+  type InProgressLabel,
+  type OpenLabel,
+  type RequiredLabels,
+} from "@/utils/labels";
 export interface Issue {
   id: string;
   number: number;
@@ -18,6 +32,10 @@ export interface Issue {
   closed: boolean;
   isPinned: boolean;
   url: string;
+  label:
+    | Omit<OpenLabel, "id">
+    | Omit<InProgressLabel, "id">
+    | Omit<DoneLabel, "id">;
 }
 
 export default function useIssues(
@@ -33,7 +51,7 @@ export default function useIssues(
   const fetchedIssueIDs = useRef<Set<string>>(new Set());
 
   const fetchMore = useCallback(async () => {
-    if (!cursor || !owner || !repo) {
+    if (!cursor || !owner || !repo || !labels) {
       return;
     }
     if (totalIssues && issues.length >= totalIssues) {
@@ -56,7 +74,7 @@ export default function useIssues(
         },
       });
 
-      const newIssues = data2issues(data).filter((issue) => {
+      const newIssues = data2issues(data, labels).filter((issue) => {
         if (fetchedIssueIDs.current.has(issue.id)) {
           return false;
         }
@@ -75,10 +93,10 @@ export default function useIssues(
     } finally {
       setLoading(false);
     }
-  }, [cursor, issues.length, owner, pageSize, repo, totalIssues]);
+  }, [cursor, issues.length, labels, owner, pageSize, repo, totalIssues]);
 
   useEffect(() => {
-    if (!owner || !repo) {
+    if (!owner || !repo || !labels) {
       return;
     }
 
@@ -97,7 +115,7 @@ export default function useIssues(
         },
       });
 
-      setIssues(data2issues(data));
+      setIssues(data2issues(data, labels));
       setCursor(getLastCursor(data));
       setTotalIssues(data.repository.issues.totalCount);
     })()
@@ -112,7 +130,7 @@ export default function useIssues(
       .finally(() => {
         setLoading(false);
       });
-  }, [owner, pageSize, repo]);
+  }, [labels, owner, pageSize, repo]);
 
   return {
     issues,
@@ -121,18 +139,103 @@ export default function useIssues(
   };
 }
 
-function data2issues(data: IssueQueryResponseData): Issue[] {
-  return data.repository.issues.edges.map((edge) => ({
-    id: edge.node.id,
-    number: edge.node.number,
-    title: edge.node.title,
-    bodyHTML: edge.node.bodyHTML,
-    closed: edge.node.closed,
-    isPinned: edge.node.isPinned,
-    url: edge.node.url,
-  }));
+function data2issues(
+  data: IssueQueryResponseData,
+  requiredLabels: RequiredLabels
+): Issue[] {
+  return data.repository.issues.edges.map((edge) => {
+    const labels = edge.node.labels.nodes;
+
+    let label: Issue["label"];
+    const toRemove = [];
+    if (labels.some((l) => l.name === "done")) {
+      if (labels.some((l) => l.name === "in progress")) {
+        toRemove.push(requiredLabels.inProgress);
+      }
+      if (labels.some((l) => l.name === "open")) {
+        toRemove.push(requiredLabels.open);
+      }
+
+      label = {
+        name: "done",
+        color: "0E8A16",
+      };
+    } else if (labels.some((l) => l.name === "in progress")) {
+      if (labels.some((l) => l.name === "open")) {
+        toRemove.push(requiredLabels.open);
+      }
+      label = {
+        name: "in progress",
+        color: "B60205",
+      };
+    } else {
+      if (!labels.some((l) => l.name === "open")) {
+        addLabelToIssue(requiredLabels.open, edge.node.id);
+      }
+      label = {
+        name: "open",
+        color: "1D76DB",
+      };
+    }
+    if (toRemove.length > 0) removeLabelsFromIssue(toRemove, edge.node.id);
+
+    return {
+      id: edge.node.id,
+      number: edge.node.number,
+      title: edge.node.title,
+      bodyHTML: edge.node.bodyHTML,
+      closed: edge.node.closed,
+      isPinned: edge.node.isPinned,
+      url: edge.node.url,
+      label,
+    };
+  });
 }
 
 function getLastCursor(data: IssueQueryResponseData): string | null {
   return data.repository.issues.edges.slice(-1)[0]?.cursor ?? null;
+}
+
+export function addLabelToIssue(
+  label: OpenLabel | InProgressLabel | DoneLabel,
+  issueID: string
+) {
+  client
+    .mutate<AddLabelsMutationResponseData, AddLabelsMutationVariables>({
+      mutation: ADD_LABELS,
+      variables: {
+        labelIds: [label.id],
+        labelableId: issueID,
+      },
+    })
+    .catch((error) => {
+      console.error(error);
+      showNotification({
+        title: "Error",
+        message: "Failed to add label to issue",
+        color: "red",
+      });
+    });
+}
+
+export function removeLabelsFromIssue(
+  labels: Array<OpenLabel | InProgressLabel | DoneLabel>,
+  issueID: string
+) {
+  client
+    .mutate<RemoveLabelsMutationResponseData, RemoveLabelsMutationVariables>({
+      mutation: REMOVE_LABELS,
+      variables: {
+        labelIds: labels.map((label) => label.id),
+        labelableId: issueID,
+      },
+    })
+    .catch((error) => {
+      console.error(error);
+      showNotification({
+        title: "Error",
+        message: "Failed to remove labels from issue",
+        color: "red",
+      });
+    });
 }
