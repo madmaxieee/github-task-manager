@@ -28,7 +28,7 @@ export interface Repo {
 export default function useRepos(pageSize = 10) {
   const [repos, setRepos] = useState<Repo[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [totalRepos, setTotalRepos] = useState<number | null>(null);
   const { loginName } = useLoginName();
   const fetchedRepoIDs = useRef<Set<string>>(new Set());

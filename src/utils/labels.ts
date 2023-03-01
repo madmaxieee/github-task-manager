@@ -7,7 +7,14 @@ import {
   type LabelCountQueryVariables,
   type LabelQueryVariables,
 } from "@/client/queries";
-
+import {
+  ADD_LABELS,
+  REMOVE_LABELS,
+  type AddLabelsMutationVariables,
+  type AddLabelsMutationResponseData,
+  type RemoveLabelsMutationResponseData,
+  type RemoveLabelsMutationVariables,
+} from "@/client/mutations";
 export interface Label {
   id: string;
   name: string;
@@ -25,7 +32,7 @@ export type OpenLabel = {
 };
 
 export type InProgressLabel = {
-  name: "in progress";
+  name: "inProgress";
   color: typeof IN_PROGRESS_COLOR;
   id: string;
 };
@@ -44,7 +51,7 @@ export type RequiredLabels = {
 
 const REQUIRED_LABEL_COLORS = [
   { name: "open", color: OPEN_COLOR },
-  { name: "in progress", color: IN_PROGRESS_COLOR },
+  { name: "inProgress", color: IN_PROGRESS_COLOR },
   { name: "done", color: DONE_COLOR },
 ];
 
@@ -74,7 +81,7 @@ export async function initializeLabels(
     | OpenLabel
     | undefined;
   const inProgressLabel = newLabels.find(
-    (label) => label.name === "in progress"
+    (label) => label.name === "inProgress"
   ) as InProgressLabel | undefined;
   const doneLabel = newLabels.find((label) => label.name === "done") as
     | DoneLabel
@@ -153,5 +160,37 @@ export function createLabel(
       color: label.color,
       description: "Automatically created by the task manager app",
     }),
+  });
+}
+
+export async function addLabelsToIssue(
+  issueID: string,
+  labels: Array<OpenLabel | InProgressLabel | DoneLabel>
+) {
+  return await client.mutate<
+    AddLabelsMutationResponseData,
+    AddLabelsMutationVariables
+  >({
+    mutation: ADD_LABELS,
+    variables: {
+      labelIds: labels.map((label) => label.id),
+      labelableId: issueID,
+    },
+  });
+}
+
+export async function removeLabelsFromIssue(
+  issueID: string,
+  labels: Array<OpenLabel | InProgressLabel | DoneLabel>
+) {
+  return await client.mutate<
+    RemoveLabelsMutationResponseData,
+    RemoveLabelsMutationVariables
+  >({
+    mutation: REMOVE_LABELS,
+    variables: {
+      labelIds: labels.map((label) => label.id),
+      labelableId: issueID,
+    },
   });
 }

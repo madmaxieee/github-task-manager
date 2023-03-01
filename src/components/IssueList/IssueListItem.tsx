@@ -1,55 +1,55 @@
 import { useState } from "react";
 import { type Issue } from "@/hooks/useIssues";
+import { Paper, Skeleton, Space, Title, SegmentedControl } from "@mantine/core";
 import {
-  Checkbox,
-  Collapse,
-  Paper,
-  Skeleton,
-  Space,
-  Title,
-  TypographyStylesProvider,
-} from "@mantine/core";
-import { sanitize } from "dompurify";
+  type RequiredLabels,
+  type DoneLabel,
+  type InProgressLabel,
+  type OpenLabel,
+} from "@/utils/labels";
+import useMutateIssue from "@/hooks/useMutateIssue";
 export interface IssueListIemProps {
   issue: Issue;
+  labels: RequiredLabels;
 }
 
-export const IssueListItem = ({ issue }: IssueListIemProps) => {
-  const [checked, setChecked] = useState(issue.closed);
+type LabelName = (OpenLabel | InProgressLabel | DoneLabel)["name"];
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(e.currentTarget.checked);
+export const IssueListItem = ({ issue, labels }: IssueListIemProps) => {
+  const [label, setLabel] = useState<LabelName>(issue.label.name);
+  const { loading, updateLabel } = useMutateIssue(issue);
+
+  const handleLabelChange = (value: LabelName) => {
+    setLabel(value);
+    updateLabel(labels[value]).catch(console.error);
   };
 
   return (
     <Paper className="p-4" shadow="lg" withBorder radius="md">
-      <div className="flex gap-4">
-        <Checkbox
-          className="py-1"
-          checked={checked}
-          onChange={handleCheckboxChange}
-          color="gray"
-        />
-        <button
-          className="text-left"
-          // onClick={() => setOpen((_open) => !_open)}
-        >
-          <Title order={3} {...(checked ? { color: "gray" } : {})}>
-            {issue.title}
-          </Title>
-        </button>
-        <Title order={3}>{issue.label.name}</Title>
+      <SegmentedControl
+        data={
+          [
+            { label: "Open", value: "open" },
+            { label: "In Progress", value: "inProgress" },
+            { label: "Done", value: "done" },
+          ] satisfies Array<{
+            label: string;
+            value: LabelName;
+          }>
+        }
+        color={
+          label === "open" ? "blue" : label === "inProgress" ? "red" : "green"
+        }
+        value={label}
+        disabled={loading}
+        onChange={handleLabelChange}
+      />
+      <Space h="sm" />
+      <div className="pl-8">
+        <Title order={3} {...(label === "done" ? { color: "gray" } : {})}>
+          {issue.title}
+        </Title>
       </div>
-      {/* <Collapse in={open}>
-        <div className="px-12">
-          <Space h="lg" />
-          <TypographyStylesProvider>
-            <div
-              dangerouslySetInnerHTML={{ __html: sanitize(issue.bodyHTML) }}
-            />
-          </TypographyStylesProvider>
-        </div>
-      </Collapse> */}
     </Paper>
   );
 };
@@ -57,6 +57,8 @@ export const IssueListItem = ({ issue }: IssueListIemProps) => {
 export const IssueListItemSkeleton = () => {
   return (
     <Paper className="p-4" shadow="lg" withBorder radius="md">
+      <Skeleton className="ml-1" height={32} width={200} radius="sm" />
+      <Space h="sm" />
       <Skeleton className="ml-8" height={20} width={400} radius="sm" />
       <Space h="sm" />
       <Skeleton className="ml-8" height={12} width={300} radius="sm" />

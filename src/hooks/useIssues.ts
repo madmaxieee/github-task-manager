@@ -8,17 +8,12 @@ import {
   type FirstIssueQueryVariables,
   type MoreIssueQueryVariables,
 } from "@/client/queries";
-import {
-  ADD_LABELS,
-  REMOVE_LABELS,
-  type AddLabelsMutationVariables,
-  type AddLabelsMutationResponseData,
-  type RemoveLabelsMutationResponseData,
-  type RemoveLabelsMutationVariables,
-} from "@/client/mutations";
 import client from "@/client";
 
 import {
+  addLabelsToIssue,
+  removeLabelsFromIssue,
+  type Label,
   type DoneLabel,
   type InProgressLabel,
   type OpenLabel,
@@ -32,10 +27,7 @@ export interface Issue {
   closed: boolean;
   isPinned: boolean;
   url: string;
-  label:
-    | Omit<OpenLabel, "id">
-    | Omit<InProgressLabel, "id">
-    | Omit<DoneLabel, "id">;
+  label: OpenLabel | InProgressLabel | DoneLabel;
 }
 
 export default function useIssues(
@@ -46,7 +38,7 @@ export default function useIssues(
 ) {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [totalIssues, setTotalIssues] = useState<number | null>(null);
   const fetchedIssueIDs = useRef<Set<string>>(new Set());
 
@@ -145,39 +137,7 @@ function data2issues(
 ): Issue[] {
   return data.repository.issues.edges.map((edge) => {
     const labels = edge.node.labels.nodes;
-
-    let label: Issue["label"];
-    const toRemove = [];
-    if (labels.some((l) => l.name === "done")) {
-      if (labels.some((l) => l.name === "in progress")) {
-        toRemove.push(requiredLabels.inProgress);
-      }
-      if (labels.some((l) => l.name === "open")) {
-        toRemove.push(requiredLabels.open);
-      }
-
-      label = {
-        name: "done",
-        color: "0E8A16",
-      };
-    } else if (labels.some((l) => l.name === "in progress")) {
-      if (labels.some((l) => l.name === "open")) {
-        toRemove.push(requiredLabels.open);
-      }
-      label = {
-        name: "in progress",
-        color: "B60205",
-      };
-    } else {
-      if (!labels.some((l) => l.name === "open")) {
-        addLabelToIssue(requiredLabels.open, edge.node.id);
-      }
-      label = {
-        name: "open",
-        color: "1D76DB",
-      };
-    }
-    if (toRemove.length > 0) removeLabelsFromIssue(toRemove, edge.node.id);
+    const label = cleanUpIssueLabel(edge.node.id, labels, requiredLabels);
 
     return {
       id: edge.node.id,
@@ -196,46 +156,49 @@ function getLastCursor(data: IssueQueryResponseData): string | null {
   return data.repository.issues.edges.slice(-1)[0]?.cursor ?? null;
 }
 
-export function addLabelToIssue(
-  label: OpenLabel | InProgressLabel | DoneLabel,
-  issueID: string
+function cleanUpIssueLabel(
+  issueID: string,
+  labels: Label[],
+  requiredLabels: RequiredLabels
 ) {
-  client
-    .mutate<AddLabelsMutationResponseData, AddLabelsMutationVariables>({
-      mutation: ADD_LABELS,
-      variables: {
-        labelIds: [label.id],
-        labelableId: issueID,
-      },
-    })
-    .catch((error) => {
-      console.error(error);
-      showNotification({
-        title: "Error",
-        message: "Failed to add label to issue",
-        color: "red",
-      });
-    });
-}
+  let label: Issue["label"];
+  const toRemove = [];
+  if (labels.some((l) => l.name === "done")) {
+    if (labels.some((l) => l.name === "in progress")) {
+      toRemove.push(requiredLabels.inProgress);
+    }
+    if (labels.some((l) => l.name === "open")) {
+      toRemove.push(requiredLabels.open);
+    }
 
-export function removeLabelsFromIssue(
-  labels: Array<OpenLabel | InProgressLabel | DoneLabel>,
-  issueID: string
-) {
-  client
-    .mutate<RemoveLabelsMutationResponseData, RemoveLabelsMutationVariables>({
-      mutation: REMOVE_LABELS,
-      variables: {
-        labelIds: labels.map((label) => label.id),
-        labelableId: issueID,
-      },
-    })
-    .catch((error) => {
-      console.error(error);
+    label = requiredLabels.done;
+  } else if (labels.some((l) => l.name === "in progress")) {
+    if (labels.some((l) => l.name === "open")) {
+      toRemove.push(requiredLabels.open);
+    }
+    label = requiredLabels.inProgress;
+  } else {
+    if (!labels.some((l) => l.name === "open")) {
+      addLabelsToIssue(issueID, [requiredLabels.open]).catch((err) => {
+        console.error(err);
+        showNotification({
+          title: "Error",
+          message: "Failed to add label to issue",
+          color: "red",
+        });
+      });
+    }
+    label = requiredLabels.open;
+  }
+  if (toRemove.length > 0) {
+    removeLabelsFromIssue(issueID, toRemove).catch((err) => {
+      console.error(err);
       showNotification({
         title: "Error",
         message: "Failed to remove labels from issue",
         color: "red",
       });
     });
+  }
+  return label;
 }

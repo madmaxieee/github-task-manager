@@ -30,9 +30,10 @@ export const IssueList = ({ owner, repo, labels }: IssueListProps) => {
   return (
     <>
       <div className="flex flex-col gap-4">
-        {issues.map((issue) => (
-          <IssueListItem key={issue.id} issue={issue} />
-        ))}
+        {labels &&
+          issues.map((issue) => (
+            <IssueListItem key={issue.id} issue={issue} labels={labels} />
+          ))}
         {!loading && issues.length === 0 && (
           <Center>
             <Title order={2} color="dimmed">
@@ -40,7 +41,7 @@ export const IssueList = ({ owner, repo, labels }: IssueListProps) => {
             </Title>
           </Center>
         )}
-        {loading && <IssueListItemSkeletons count={10} />}
+        {(!labels || loading) && <IssueListItemSkeletons count={10} />}
       </div>
       <div ref={bottomRef} />
     </>
