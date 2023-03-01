@@ -5,12 +5,21 @@ import { useSession } from "next-auth/react";
 
 import { type RequiredLabels, initializeLabels } from "@/utils/labels";
 
-import { AppShell, Container, Divider, Space, Title } from "@mantine/core";
+import {
+  AppShell,
+  Button,
+  Container,
+  Divider,
+  Space,
+  Title,
+} from "@mantine/core";
+import { IconPlus } from "@tabler/icons-react";
 import Redirecting from "@/components/Redirecting";
 import SignOutButton from "@/components/SignOutButton";
 import Header from "@/components/Header";
 import IssueList from "@/components/IssueList";
 import { showNotification } from "@mantine/notifications";
+import Link from "next/link";
 
 export interface IssuesPageQuery extends Record<string, string> {
   owner: string;
@@ -59,9 +68,20 @@ const Issues: NextPage = () => {
       }
     >
       <Container className="py-4">
-        <Title order={2}>
-          {owner}/{repo}
-        </Title>
+        <div className="flex justify-between">
+          <Title order={2}>
+            {owner}/{repo}
+          </Title>
+          <Link href={`/issues/${owner}/${repo}/new`}>
+            <Button
+              variant="outline"
+              color="blue"
+              leftIcon={<IconPlus size="1rem" />}
+            >
+              New Task
+            </Button>
+          </Link>
+        </div>
         <Divider className="my-2" />
         <Space h="xl" />
         <IssueList owner={owner} repo={repo} labels={labels} />
