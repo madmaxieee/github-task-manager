@@ -1,7 +1,14 @@
 import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { AppShell, Container, Divider, Space, Title } from "@mantine/core";
+import {
+  Anchor,
+  AppShell,
+  Container,
+  Divider,
+  Space,
+  Title,
+} from "@mantine/core";
 import { type IssuesPageQuery } from ".";
 import Redirecting from "@/components/Redirecting";
 import Header from "@/components/Header";
@@ -9,6 +16,7 @@ import SignOutButton from "@/components/SignOutButton";
 import IssueEditor from "@/components/IssueEditor";
 import useUpdateIssue from "@/hooks/useUpdateIssue";
 import { showNotification } from "@mantine/notifications";
+import Link from "next/link";
 
 export interface EditIssuePageQuery extends IssuesPageQuery {
   issueID: string;
@@ -40,7 +48,13 @@ export const EditIssue: NextPage = () => {
       <Container className="py-4">
         <Title order={2}>Edit Issue</Title>
         <Title order={3} color="dimmed">
-          {owner}/{repo}
+          <Anchor component="span">
+            <Link href="/">{owner}</Link>
+          </Anchor>
+          {" / "}
+          <Anchor component="span">
+            <Link href={`/issues/${owner}/${repo}`}>{repo}</Link>
+          </Anchor>
         </Title>
         <Divider className="my-2" />
         <Space h="xl" />

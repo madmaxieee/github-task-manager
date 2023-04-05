@@ -68,3 +68,26 @@ export const UPDATE_ISSUE = gql`
     }
   }
 `;
+
+export interface CreateIssueMutationResponseData {
+  createIssue: {
+    clientMutationId: string;
+  };
+}
+
+export interface CreateIssueMutationVariables {
+  input: {
+    repositoryId: string;
+    title: string;
+    body: string;
+    labelIds: string[];
+  };
+}
+
+export const CREATE_ISSUE = gql`
+  mutation CreateIssue($input: CreateIssueInput!) {
+    createIssue(input: $input) {
+      clientMutationId
+    }
+  }
+`;

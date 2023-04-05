@@ -116,3 +116,22 @@ export const GET_MORE_REPOS = gql`
     }
   }
 `;
+
+export interface RepoIDQueryVariables {
+  name: string;
+  owner: string;
+}
+
+export interface RepoIDQueryResponseData {
+  repository: {
+    id: string;
+  };
+}
+
+export const GET_REPO_ID = gql`
+  query Repo($name: String!, $owner: String!) {
+    repository(name: $name, owner: $owner) {
+      id
+    }
+  }
+`;

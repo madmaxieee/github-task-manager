@@ -9,6 +9,8 @@ import {
 } from "@/client/queries";
 import { showNotification } from "@mantine/notifications";
 import useLoginName from "./useLoginName";
+import { useStore } from "zustand";
+import store from "@/store";
 
 export interface Repo {
   id: string;
@@ -32,6 +34,10 @@ export default function useRepos(pageSize = 10) {
   const [totalRepos, setTotalRepos] = useState<number | null>(null);
   const { loginName } = useLoginName();
   const fetchedRepoIDs = useRef<Set<string>>(new Set());
+  const updateManyRepoData = useStore(
+    store,
+    (store) => store.updateManyRepoData
+  );
 
   const fetchMore = useCallback(async () => {
     if (!loginName || !cursor) {
@@ -63,6 +69,15 @@ export default function useRepos(pageSize = 10) {
         return true;
       });
       setRepos((prevRepos) => [...prevRepos, ...newRepos]);
+      updateManyRepoData(
+        newRepos.map((repo) => ({
+          owner: repo.owner,
+          name: repo.name,
+          data: {
+            id: repo.id,
+          },
+        }))
+      );
       setCursor(getLastCursor(data));
     } catch (error) {
       console.error(error);
@@ -74,7 +89,14 @@ export default function useRepos(pageSize = 10) {
     } finally {
       setLoading(false);
     }
-  }, [loginName, cursor, totalRepos, repos.length, pageSize]);
+  }, [
+    loginName,
+    cursor,
+    totalRepos,
+    repos.length,
+    pageSize,
+    updateManyRepoData,
+  ]);
 
   useEffect(() => {
     if (!loginName) {
@@ -94,7 +116,17 @@ export default function useRepos(pageSize = 10) {
         },
       });
 
-      setRepos(data2repos(data));
+      const repos = data2repos(data);
+      setRepos(repos);
+      updateManyRepoData(
+        repos.map((repo) => ({
+          owner: repo.owner,
+          name: repo.name,
+          data: {
+            id: repo.id,
+          },
+        }))
+      );
       setCursor(getLastCursor(data));
       setTotalRepos(data.user.repositories.totalCount!);
     })()
@@ -109,7 +141,7 @@ export default function useRepos(pageSize = 10) {
       .finally(() => {
         setLoading(false);
       });
-  }, [loginName, pageSize]);
+  }, [loginName, pageSize, updateManyRepoData]);
 
   return {
     repos,
