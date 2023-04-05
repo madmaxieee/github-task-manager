@@ -91,3 +91,21 @@ export const CREATE_ISSUE = gql`
     }
   }
 `;
+
+export interface CloseIssueMutationResponseData {
+  closeIssue: {
+    clientMutationId: string;
+  };
+}
+
+export interface CloseIssueMutationVariables {
+  issueId: string;
+}
+
+export const CLOSE_ISSUE = gql`
+  mutation CloseIssue($issueId: ID!) {
+    closeIssue(input: { issueId: $issueId }) {
+      clientMutationId
+    }
+  }
+`;

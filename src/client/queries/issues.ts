@@ -42,7 +42,11 @@ export const GET_FIRST_ISSUE = gql`
     $labelCount: Int!
   ) {
     repository(name: $name, owner: $owner) {
-      issues(first: $first, orderBy: { field: CREATED_AT, direction: DESC }) {
+      issues(
+        first: $first
+        orderBy: { field: CREATED_AT, direction: DESC }
+        filterBy: { states: OPEN }
+      ) {
         edges {
           cursor
           node {
@@ -90,6 +94,7 @@ export const GET_MORE_ISSUES = gql`
         first: $first
         after: $after
         orderBy: { field: CREATED_AT, direction: DESC }
+        filterBy: { states: OPEN }
       ) {
         edges {
           cursor

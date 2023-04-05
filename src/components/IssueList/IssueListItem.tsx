@@ -24,6 +24,8 @@ import {
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import useUpdateLabel from "@/hooks/useUpdateLabel";
 import Link from "next/link";
+import useCloseIssue from "@/hooks/useCloseIssue";
+import { showNotification } from "@mantine/notifications";
 export interface IssueListIemProps {
   issue: Issue;
   labels: RequiredLabels;
@@ -35,7 +37,8 @@ export const IssueListItem = ({ issue, labels }: IssueListIemProps) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState<LabelName>(issue.label.name);
-  const { loading, updateLabel } = useUpdateLabel(issue);
+  const { loading: updateLabelLoading, updateLabel } = useUpdateLabel(issue);
+  const { closeIssue } = useCloseIssue(issue.id);
 
   const handleLabelChange = (value: LabelName) => {
     setLabel(value);
@@ -60,7 +63,7 @@ export const IssueListItem = ({ issue, labels }: IssueListIemProps) => {
             label === "open" ? "blue" : label === "inProgress" ? "red" : "green"
           }
           value={label}
-          disabled={loading}
+          disabled={updateLabelLoading}
           onChange={handleLabelChange}
         />
         <div className="flex items-center gap-2">
@@ -69,7 +72,23 @@ export const IssueListItem = ({ issue, labels }: IssueListIemProps) => {
               <IconEdit />
             </ActionIcon>
           </Link>
-          <ActionIcon className="p-1" color="red" variant="filled">
+          <ActionIcon
+            className="p-1"
+            color="red"
+            variant="filled"
+            onClick={() => {
+              closeIssue()
+                .then(() => {
+                  router.reload();
+                  showNotification({
+                    title: "Issue closed",
+                    message: "The issue has been closed successfully.",
+                    color: "green",
+                  });
+                })
+                .catch(console.error);
+            }}
+          >
             <IconTrash />
           </ActionIcon>
         </div>
@@ -87,7 +106,6 @@ export const IssueListItem = ({ issue, labels }: IssueListIemProps) => {
 
       <Collapse in={open}>
         <Divider className="my-4" />
-
         <TypographyStylesProvider
           style={{
             ...(label === "done"

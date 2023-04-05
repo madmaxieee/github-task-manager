@@ -1,27 +1,28 @@
 import { useMutation } from "@apollo/client";
-import { UPDATE_ISSUE } from "@/client/mutations";
+import {
+  CLOSE_ISSUE,
+  type CloseIssueMutationVariables,
+  type CloseIssueMutationResponseData,
+} from "@/client/mutations";
 
-export default function useCloseIssue() {
-  const [mutate, { loading }] = useMutation(UPDATE_ISSUE);
+export default function useCloseIssue(issueID: string) {
+  const [mutate, { loading }] = useMutation<
+    CloseIssueMutationResponseData,
+    CloseIssueMutationVariables
+  >(CLOSE_ISSUE);
 
-  const closeIssue = async (issueID: string) => {
+  const closeIssue = async () => {
     await mutate({
       variables: {
-        input: {
-          id: issueID,
-          state: "CLOSED",
-        },
+        issueId: issueID,
       },
     });
   };
 
-  const reopenIssue = async (issueID: string) => {
+  const reopenIssue = async () => {
     await mutate({
       variables: {
-        input: {
-          id: issueID,
-          state: "OPEN",
-        },
+        issueId: issueID,
       },
     });
   };

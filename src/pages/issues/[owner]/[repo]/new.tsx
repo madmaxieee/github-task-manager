@@ -56,14 +56,23 @@ export const NewIssue = () => {
         <Space h="xl" />
         <IssueEditor
           handleSubmit={({ title, body }) => {
-            createIssue({ title, body }).catch((err) => {
-              console.error(err);
-              showNotification({
-                title: "Error",
-                message: "There was an error creating the issue",
-                color: "red",
+            createIssue({ title, body })
+              .then(() => {
+                showNotification({
+                  title: "Success",
+                  message: "Issue created",
+                  color: "green",
+                });
+                router.push(`/issues/${owner}/${repo}`).catch(console.error);
+              })
+              .catch((err) => {
+                console.error(err);
+                showNotification({
+                  title: "Error",
+                  message: "There was an error creating the issue",
+                  color: "red",
+                });
               });
-            });
           }}
           variant="create"
           disabled={loading}
