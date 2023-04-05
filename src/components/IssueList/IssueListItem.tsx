@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { sanitize } from "dompurify";
+import { useRouter } from "next/router";
 
 import { type Issue } from "@/hooks/useIssues";
 import {
@@ -21,7 +22,8 @@ import {
   type OpenLabel,
 } from "@/utils/labels";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
-import useMutateIssue from "@/hooks/useMutateIssue";
+import useUpdateLabel from "@/hooks/useUpdateLabel";
+import Link from "next/link";
 export interface IssueListIemProps {
   issue: Issue;
   labels: RequiredLabels;
@@ -30,9 +32,10 @@ export interface IssueListIemProps {
 type LabelName = (OpenLabel | InProgressLabel | DoneLabel)["name"];
 
 export const IssueListItem = ({ issue, labels }: IssueListIemProps) => {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState<LabelName>(issue.label.name);
-  const { loading, updateLabel } = useMutateIssue(issue);
+  const { loading, updateLabel } = useUpdateLabel(issue);
 
   const handleLabelChange = (value: LabelName) => {
     setLabel(value);
@@ -61,9 +64,11 @@ export const IssueListItem = ({ issue, labels }: IssueListIemProps) => {
           onChange={handleLabelChange}
         />
         <div className="flex items-center gap-2">
-          <ActionIcon className="p-1" color="blue" variant="filled">
-            <IconEdit />
-          </ActionIcon>
+          <Link href={`${router.asPath}/${issue.id}`}>
+            <ActionIcon className="p-1" color="blue" variant="filled">
+              <IconEdit />
+            </ActionIcon>
+          </Link>
           <ActionIcon className="p-1" color="red" variant="filled">
             <IconTrash />
           </ActionIcon>

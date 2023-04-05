@@ -41,3 +41,30 @@ export const REMOVE_LABELS = gql`
     }
   }
 `;
+
+export interface UpdateIssueMutationResponseData {
+  updateIssue: {
+    clientMutationId: string;
+  };
+}
+
+export interface UpdateIssueMutationVariables {
+  input:
+    | {
+        id: string;
+        title: string;
+        body: string;
+      }
+    | {
+        id: string;
+        state: "OPEN" | "CLOSED";
+      };
+}
+
+export const UPDATE_ISSUE = gql`
+  mutation UpdateIssue($input: UpdateIssueInput!) {
+    updateIssue(input: $input) {
+      clientMutationId
+    }
+  }
+`;

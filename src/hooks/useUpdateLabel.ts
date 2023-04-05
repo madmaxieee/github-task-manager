@@ -10,7 +10,7 @@ import {
 import { type Issue } from "@/hooks/useIssues";
 import { showNotification } from "@mantine/notifications";
 
-export default function useMutateIssue(issue: Issue) {
+export default function useUpdateLabel(issue: Issue) {
   const [loading, setLoading] = useState(false);
 
   const updateLabel = async (

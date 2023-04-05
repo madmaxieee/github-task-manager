@@ -1,9 +1,9 @@
 import { type LegacyRef } from "react";
-import useIssues from "@/hooks/useIssues";
 
 import { Center, Title } from "@mantine/core";
 import IssueListItem, { IssueListItemSkeletons } from "./IssueListItem";
 import { type RequiredLabels } from "@/utils/labels";
+import useIssues from "@/hooks/useIssues";
 
 export interface IssueListProps {
   owner?: string;
@@ -13,6 +13,7 @@ export interface IssueListProps {
 
 export const IssueList = ({ owner, repo, labels }: IssueListProps) => {
   const { issues, loading, fetchMore } = useIssues(owner, repo, labels, 10);
+
   const bottomRef: LegacyRef<HTMLDivElement> = (element) => {
     if (element) {
       const observer = new IntersectionObserver(
