@@ -11,19 +11,19 @@ import useUpdateIssue from "@/hooks/useUpdateIssue";
 import { showNotification } from "@mantine/notifications";
 
 export interface EditIssuePageQuery extends IssuesPageQuery {
-  number: string;
+  issueID: string;
 }
 
 export const EditIssue: NextPage = () => {
   const router = useRouter();
-  const { owner, repo, number } = router.query as EditIssuePageQuery;
+  const { owner, repo, issueID } = router.query as EditIssuePageQuery;
   const { status } = useSession({
     required: true,
     onUnauthenticated: () => {
       router.push("/signin").catch(console.error);
     },
   });
-  const { loading, editIssue } = useUpdateIssue({ owner, repo, number });
+  const { loading, editIssue } = useUpdateIssue(issueID);
 
   if (status !== "authenticated") {
     return <Redirecting />;
@@ -55,6 +55,7 @@ export const EditIssue: NextPage = () => {
               });
             });
           }}
+          variant="edit"
           disabled={loading}
         />
       </Container>

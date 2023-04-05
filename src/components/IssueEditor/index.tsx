@@ -4,10 +4,15 @@ import RichTextEditor from "../RichTextEditor";
 
 export interface IssueEditorProps {
   handleSubmit: ({ title, body }: { title: string; body: string }) => void;
+  variant: "create" | "edit";
   disabled?: boolean;
 }
 
-export const IssueEditor = ({ handleSubmit, disabled }: IssueEditorProps) => {
+export const IssueEditor = ({
+  handleSubmit,
+  disabled,
+  variant,
+}: IssueEditorProps) => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [error, setError] = useState(false);
@@ -50,7 +55,7 @@ export const IssueEditor = ({ handleSubmit, disabled }: IssueEditorProps) => {
           onClick={onSubmit}
           disabled={disabled}
         >
-          Create New Task
+          {variant === "create" ? "Create New Task" : "Update Task"}
         </Button>
       </div>
     </>
