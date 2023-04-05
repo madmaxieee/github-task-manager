@@ -121,3 +121,59 @@ export const GET_MORE_ISSUES = gql`
     }
   }
 `;
+
+export interface SearchIssueQueryVariables {
+  query: string;
+}
+
+export interface SearchIssueQueryResponseData {
+  search: {
+    edges: {
+      cursor: string;
+      node: {
+        bodyHTML: string;
+        closed: boolean;
+        id: string;
+        isPinned: boolean;
+        number: number;
+        title: string;
+        url: string;
+        labels: {
+          nodes: {
+            id: string;
+            name: string;
+            color: string;
+          }[];
+        };
+      };
+    }[];
+  };
+}
+
+export const SearchIssues = gql`
+  query SearchIssues($query: String!) {
+    search(query: $query, type: ISSUE) {
+      edges {
+        cursor
+        node {
+          ... on Issue {
+            id
+            bodyHTML
+            closed
+            labels(first: 10) {
+              nodes {
+                id
+                name
+                color
+              }
+            }
+            number
+            title
+            url
+            isPinned
+          }
+        }
+      }
+    }
+  }
+`;
