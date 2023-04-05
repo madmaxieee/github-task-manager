@@ -17,6 +17,8 @@ import IssueEditor from "@/components/IssueEditor";
 import useUpdateIssue from "@/hooks/useUpdateIssue";
 import { showNotification } from "@mantine/notifications";
 import Link from "next/link";
+import { useStore } from "zustand";
+import store from "@/store";
 
 export interface EditIssuePageQuery extends IssuesPageQuery {
   issueID: string;
@@ -32,8 +34,14 @@ export const EditIssue: NextPage = () => {
     },
   });
   const { loading, editIssue } = useUpdateIssue(issueID);
+  const issue = useStore(store, (state) => state.issues[issueID]);
 
   if (status !== "authenticated") {
+    return <Redirecting />;
+  }
+
+  if (!issue) {
+    router.push(`/issues/${owner}/${repo}`).catch(console.error);
     return <Redirecting />;
   }
 
@@ -70,6 +78,8 @@ export const EditIssue: NextPage = () => {
             });
           }}
           variant="edit"
+          defaultTitle={issue.title}
+          defaultBody={issue.bodyHTML}
           disabled={loading}
         />
       </Container>

@@ -7,11 +7,13 @@ import debounce from "lodash/debounce";
 export interface RichTextEditorProps {
   setContent: (content: string) => void;
   placeholder?: string;
+  defaultValue?: string;
 }
 
 export const RichTextEditor = ({
   placeholder,
   setContent,
+  defaultValue = "",
 }: RichTextEditorProps) => {
   const handleUpdate = debounce(({ editor }: { editor: Editor }) => {
     const content = editor.getHTML();
@@ -21,6 +23,7 @@ export const RichTextEditor = ({
   const editor = useEditor({
     extensions: [StarterKit, Link],
     onUpdate: handleUpdate,
+    content: defaultValue,
   });
 
   return (

@@ -1,31 +1,46 @@
 import { useState } from "react";
-import { Button, Input, Space } from "@mantine/core";
+import { Button, Input, Space, Text } from "@mantine/core";
 import RichTextEditor from "../RichTextEditor";
 
 export interface IssueEditorProps {
   handleSubmit: ({ title, body }: { title: string; body: string }) => void;
   variant: "create" | "edit";
   disabled?: boolean;
+  defaultTitle?: string;
+  defaultBody?: string;
 }
 
 export const IssueEditor = ({
   handleSubmit,
   disabled,
   variant,
+  defaultTitle = "",
+  defaultBody = "",
 }: IssueEditorProps) => {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [error, setError] = useState(false);
+  const [title, setTitle] = useState(defaultTitle);
+  const [body, setBody] = useState(defaultBody);
+  const [titleError, setTitleError] = useState(false);
+  const [bodyError, setBodyError] = useState(false);
 
   const onTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.currentTarget.value;
     setTitle(newTitle);
-    if (error && newTitle.length > 0) setError(false);
+    if (titleError && newTitle.length > 0) {
+      setTitleError(false);
+    }
+    if (bodyError && newTitle.length > 30) {
+      setBodyError(false);
+    }
   };
 
   const onSubmit = () => {
     if (title.length === 0) {
-      setError(true);
+      setTitleError(true);
+    }
+    if (body.length < 30) {
+      setBodyError(true);
+    }
+    if (title.length === 0 || body.length < 30) {
       return;
     }
     handleSubmit({ title, body });
@@ -34,7 +49,7 @@ export const IssueEditor = ({
   return (
     <>
       <Input.Wrapper
-        {...(error && {
+        {...(titleError && {
           error: "Title is required",
         })}
       >
@@ -46,7 +61,16 @@ export const IssueEditor = ({
         />
       </Input.Wrapper>
       <Space h="xl" />
-      <RichTextEditor placeholder="description" setContent={setBody} />
+      <RichTextEditor
+        placeholder="description"
+        setContent={setBody}
+        defaultValue={defaultBody}
+      />
+      {bodyError && (
+        <Text color="red">
+          The body of the issue must be at least 30 characters long.
+        </Text>
+      )}
       <Space h="xl" />
       <div className="flex justify-end px-4">
         <Button

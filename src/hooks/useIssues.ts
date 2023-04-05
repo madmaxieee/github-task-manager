@@ -19,6 +19,8 @@ import {
   type OpenLabel,
   type RequiredLabels,
 } from "@/utils/labels";
+import { useStore } from "zustand";
+import store from "@/store";
 export interface Issue {
   id: string;
   number: number;
@@ -41,6 +43,7 @@ export default function useIssues(
   const [loading, setLoading] = useState(true);
   const [totalIssues, setTotalIssues] = useState<number | null>(null);
   const fetchedIssueIDs = useRef<Set<string>>(new Set());
+  const insertManyIssues = useStore(store, (state) => state.insertManyIssues);
 
   const fetchMore = useCallback(async () => {
     if (!cursor || !owner || !repo || !labels) {
@@ -74,6 +77,7 @@ export default function useIssues(
         return true;
       });
       setIssues((currentIssues) => [...currentIssues, ...newIssues]);
+      insertManyIssues(newIssues);
       setCursor(getLastCursor(data));
     } catch (error) {
       console.error(error);
@@ -85,7 +89,16 @@ export default function useIssues(
     } finally {
       setLoading(false);
     }
-  }, [cursor, issues.length, labels, owner, pageSize, repo, totalIssues]);
+  }, [
+    cursor,
+    insertManyIssues,
+    issues.length,
+    labels,
+    owner,
+    pageSize,
+    repo,
+    totalIssues,
+  ]);
 
   useEffect(() => {
     if (!owner || !repo || !labels) {
@@ -107,7 +120,9 @@ export default function useIssues(
         },
       });
 
-      setIssues(data2issues(data, labels));
+      const issues = data2issues(data, labels);
+      setIssues(issues);
+      insertManyIssues(issues);
       setCursor(getLastCursor(data));
       setTotalIssues(data.repository.issues.totalCount);
     })()
@@ -122,7 +137,7 @@ export default function useIssues(
       .finally(() => {
         setLoading(false);
       });
-  }, [labels, owner, pageSize, repo]);
+  }, [insertManyIssues, labels, owner, pageSize, repo]);
 
   return {
     issues,
